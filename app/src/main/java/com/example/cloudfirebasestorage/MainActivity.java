@@ -16,6 +16,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
+
 
 
 import java.util.ArrayList;
@@ -134,13 +136,39 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 //        3. đọc dữ liệu object
-        DocumentReference objectRef = db.collection("Animal").document("atHome");
-        objectRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+//        DocumentReference objectRef = db.collection("Animal").document("atHome");
+//        objectRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+//            @Override
+//            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+//                if (value != null && value.exists()){
+//                    Animal animal = value.toObject(Animal.class);
+//                    Log.d("BBB",animal.toString());
+//                }
+//            }
+//        });
+//        4. Đọc dư liệu dạng list document
+        db.collection("Product").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (value != null && value.exists()){
-                    Animal animal = value.toObject(Animal.class);
-                    Log.d("BBB",animal.toString());
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if(task.isSuccessful()){
+                    for(DocumentSnapshot snapshot: task.getResult().getDocuments()){
+                        Map<String, Object> objectMap = snapshot.getData();
+                        Iterator iterator = objectMap.keySet().iterator();
+                        String name = "";
+                        String price = "";
+                        while(iterator.hasNext()){
+                            String key = iterator.next().toString();
+                            if(key.equals("price")){
+                                price = objectMap.get(key).toString();
+                            }
+                            else{
+                                name = objectMap.get(key).toString();
+                            }
+                        }
+                        Log.d("BBB","Document SnapShot " + snapshot.getId());
+                        Log.d("BBB", "Name " + name);
+                        Log.d("BBB", "Price " + price);
+                    }
                 }
             }
         });
